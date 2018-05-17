@@ -1,0 +1,410 @@
+#!/bin/bash  
+## XF,18/01/2003; HG,15/01/2006; 18/10/2008; 5/4/2009
+
+#set -x
+
+  echo "  "
+  echo " ******************************************"
+  echo " *   Preparation of ETH-Camp Simulation   *"
+  echo " ******************************************"
+  echo "  "
+
+##########################################################################################################################
+#
+# main variables
+# ==============
+  
+                     export HOST=`hostname`
+echo " "
+echo "You are working on "${HOST}
+echo " "
+
+  SimDir="$HOME/nobackup/SISVAT.ETH-Camp-GL"               # Simulation directory
+
+  MARdir="$HOME/MAR/src/forMAR"                   # MARdir
+  USRdir="$HOME/MAR/usr/"
+
+  Preprocessing="y"                               # yes or no  
+  Double="n"                                      # Double precision
+  SimName="SI001_FA13_ctrl"
+  Type="_$SimName"
+#  Type="_CZ"                                      # Type of simulation (nCZ,_CZ,_CZ_wri,_CZ_wriFULL)
+#  echo -n " Preprocess options : ( nCZ , _CZ , _CZ_wri , _CZ_wriFULL ): "
+#  read Type
+
+  PostDir="$HOME/nobackup/SISVAT_postProc/$SimName"
+  
+  Comp="gfortran"  # Compilator ifc,g77,f77,f90,ifort
+  Option="-w -O2"  # Option of compilation
+
+  
+#  Year="1990"                                     # Simulated Year (1990 or 1991)
+
+#  echo -n " Specify the year           (only 1990 OR 1991 are allowed): "
+#  read                  Year
+       
+  echo " --------------------------------------------------------------------"
+  echo " Compilator         : $Comp"
+  echo " Option for $Comp     : $Option" 
+  echo "  "
+  echo " Run directory      : $SimDir" 
+  echo " MAR directory      : $MARdir"   
+  echo " "
+  echo " Preprocessing      : $Preprocessing"
+  echo " Type of simulation : $Type"  
+  echo " Double precision   : $Double"  
+   
+##########################################################################################################################
+#
+# Creation of PostDir
+# ===================
+
+  if [ -d ${PostDir} ]     ; then
+     echo " Error: simulation already exists."
+     exit
+  else
+     mkdir  ${PostDir}
+  fi
+
+##########################################################################################################################
+#
+# Creation of SimDir
+# ==================
+
+  if [ -d ${SimDir} ]     ; then
+   rm -rf                                           ${SimDir}/src &>/dev/null
+   mkdir                                            ${SimDir}/src &>/dev/null
+  else
+   mkdir                                            ${SimDir}
+   mkdir                                            ${SimDir}/src
+  fi
+
+  cd                                                $SimDir/src
+  cp -rp $HOME/MAR/src/ETHcamp/* $SimDir/src  
+
+ 
+  if [ $PWD != ${SimDir}/src ] ; then
+   exit
+  fi
+
+
+##########################################################################################################################
+#
+# Configuration of sISvat.ctr
+# ===========================
+
+#  if [ -f sISvat.ctr ] ; then
+#   echo "                    "
+#   echo " Simulated year     :" `cat  sISvat.ctr`      
+#  else
+#   echo " Simulated year     : $Year"
+#   echo "$Year" > sISvat.ctr 
+#  fi
+#  mv         sISvat.ctr ..
+  mv         sISvat2.ctr ..
+  cp -p CTRL/Out_nc.ctr ..
+  echo " --------------------------------------------------------------------"
+  echo " "
+
+##########################################################################################################################
+#
+# Agree with configuration
+# ========================
+
+#  echo -n " Do you agree with this configuration?      (y/n): "
+#
+#  if [ ${#1} -gt 0 ] && [ $1 == "y" ] ; then
+#   Agree=y 
+#  else 
+#   read Agree 
+##  Agree=y
+#  fi
+#         
+#  if [ $Agree == "y" ] ; then
+#   echo " OK for this configuration"
+#   echo " "
+#  else
+#   echo " ==> You must configure this file !"
+#   exit  
+#  fi     
+                   
+##########################################################################################################################
+#
+# Preprocessing
+# =============
+
+        Extraction=y
+
+ if [ ${Extraction} == "y" ] ; then
+          
+#  -----------------------------------------------------------------------------------------------------------------------
+
+   Subroutine="qsat"
+   echo " Extraction of ${Subroutine}.f       from MAR___.FOR"
+   N1=`grep -n "      function ${Subroutine}" ${MARdir}/forMAR/MAR___.FOR | tail -n +1 | awk '{print $1}'` ;  N1=${N1%:}        
+   grep -n '      return' ${MARdir}/forMAR/MAR___.FOR       > toto_file      ; N2=0 ; i=0
+   while [ ${N2} -lt  ${N1} ]                       ; do
+    i=$(( ${i} + 1 ))
+    N2=`head -n +${i} toto_file | tail -n 1 | awk '{print $1}'` ; N2=${N2%:}
+   done  
+   tail -n +${N1} ${MARdir}/forMAR/MAR___.FOR       > toto_file
+   head -n $(( ${N2} - ${N1} + 2 ))                   toto_file > ${Subroutine}.for 
+
+#  -----------------------------------------------------------------------------------------------------------------------
+
+   Subroutine="UPDsnow"
+   echo " Extraction of ${Subroutine}.f       from SBCnew.f"
+   N1=`grep -n "      subroutine ${Subroutine}" ${USRdir}/SBCnew.f | tail -n +1 | awk '{print $1}'` ; N1=${N1%:}
+
+   grep -n '      end subroutine' ${USRdir}/SBCnew.f > toto_file ; N2=0 ; i=0
+   while [ ${N2} -lt ${N1} ] ; do
+    i=$(( ${i} + 1 ))
+    N2=`head -n +${i} toto_file | tail -n 1 | awk '{print $1}'` ; N2=${N2%:} 
+   done
+   tail -n +${N1} ${USRdir}/SBCnew.f > toto_file
+   head -n $(( ${N2} - ${N1} + 2 ))    toto_file > ${Subroutine}.for
+
+#  -----------------------------------------------------------------------------------------------------------------------
+
+   Subroutine="PHYmar"
+   echo " Extraction of ${Subroutine}.f     from MAR___.FOR"
+   N1=`grep -n "      subroutine ${Subroutine}" ${MARdir}/forMAR/MAR___.FOR | tail -n +1 | awk '{print $1}'` ;  N1=${N1%:}
+   N3=`grep -n "      block data PHYdat" ${MARdir}/forMAR/MAR___.FOR | tail -n +1 | awk '{print $1}'`        ;  N3=${N3%:}           
+   grep -n '      return' ${MARdir}/forMAR/MAR___.FOR       > toto_file      ; N2=0 ; i=0
+   while [ ${N2} -lt  ${N1} ]                       ; do
+    i=$(( ${i} + 1 ))
+    N2=`head -n +${i} toto_file | tail -n 1 | awk '{print $1}'` ; N2=${N2%:}
+   done   
+   tail -n +${N3} ${MARdir}/forMAR/MAR___.FOR       > toto_file
+   head -n $(( ${N2} - ${N3} + 2 ))                   toto_file > ${Subroutine}.for   
+
+#  -----------------------------------------------------------------------------------------------------------------------
+
+   Subroutine="PHYrad_top"
+   echo " Extraction of ${Subroutine}.f from MAR___.FOR"
+   N1=`grep -n "      subroutine ${Subroutine}" ${MARdir}/forMAR/MAR___.FOR | tail -n +1 | awk '{print $1}'` ;  N1=${N1%:}       
+   grep -n '      return' ${MARdir}/forMAR/MAR___.FOR       > toto_file      ; N2=0 ; i=0
+   while [ ${N2} -lt  ${N1} ]                       ; do
+    i=$(( ${i} + 1 ))
+    N2=`head -n +${i} toto_file | tail -n 1 | awk '{print $1}'` ; N2=${N2%:}
+   done   
+   tail -n +${N1} ${MARdir}/forMAR/MAR___.FOR       > toto_file
+   head -n $(( ${N2} - ${N1} + 2 ))                   toto_file > ${Subroutine}.for
+
+#  -----------------------------------------------------------------------------------------------------------------------
+
+   Subroutine="ou2sGE"
+   echo " Extraction of ${Subroutine}.f     from MAR___.FOR"
+   N1=`grep -n "      function ${Subroutine}" ${MARdir}/forMAR/MAR___.FOR | tail -n +1 | awk '{print $1}'` ;  N1=${N1%:}       
+   grep -n '      return' ${MARdir}/forMAR/MAR___.FOR       > toto_file      ; N2=0 ; i=0
+   while [ ${N2} -lt  ${N1} ]                       ; do
+    i=$(( ${i} + 1 ))
+    N2=`head -n +${i} toto_file | tail -n 1 | awk '{print $1}'` ; N2=${N2%:}
+   done   
+   tail -n +${N1} ${MARdir}/forMAR/MAR___.FOR       > toto_file
+   head -n $(( ${N2} - ${N1} + 2 ))                   toto_file > ${Subroutine}.for
+
+#  -----------------------------------------------------------------------------------------------------------------------
+
+   Subroutine="SISVAT"
+   echo " Extraction of ${Subroutine}.f     from MAR___.FOR"
+   N1=`grep -n "      subroutine SISVAT_wEq"  ${MARdir}/forMAR/MAR___.FOR | tail -n +1 | awk '{print $1}'` ;  N1=${N1%:}
+   N3=`grep -n "      subroutine PHY_SISVAT(" ${MARdir}/forMAR/MAR___.FOR | tail -n +1 | awk '{print $1}'` ;  N3=${N3%:}             
+   grep -n '      return' ${MARdir}/forMAR/MAR___.FOR       > toto_file      ; N2=0 ; i=0
+   while [ ${N2} -lt  ${N1} ]                       ; do
+    i=$(( ${i} + 1 ))
+    N2=`head -n +${i} toto_file | tail -n 1 | awk '{print $1}'` ; N2=${N2%:}
+   done   
+   tail -n +${N3} ${MARdir}/forMAR/MAR___.FOR       > toto_file
+   head -n $(( ${N2} - ${N3} + 2 ))                   toto_file > toto_file1   
+
+   Subroutine="INIglf"
+   echo " Extraction of ${Subroutine}.f     from MAR___.FOR"
+   N1=`grep -n "      subroutine ${Subroutine}" ${MARdir}/forMAR/MAR___.FOR | tail -n +1 | awk '{print $1}'` ;  N1=${N1%:}       
+   grep -n '      return' ${MARdir}/forMAR/MAR___.FOR       > toto_file      ; N2=0 ; i=0
+   while [ ${N2} -lt  ${N1} ]                       ; do
+    i=$(( ${i} + 1 ))
+    N2=`head -n +${i} toto_file | tail -n 1 | awk '{print $1}'` ; N2=${N2%:}
+   done   
+   tail -n +${N1} ${MARdir}/forMAR/MAR___.FOR       > toto_file
+   head -n $(( ${N2} - ${N1} + 2 ))                   toto_file > toto_file2
+   cat   toto_file1  toto_file2 > SISVAT.for
+   rm -f toto_file* 
+      
+#  -----------------------------------------------------------------------------------------------------------------------
+
+  if [ ${Preprocessing} == "y" ] ; then
+
+   echo " "
+   echo " Preprocessing of SISVAT.f"
+       
+    cp -f Pre--Processing/PrePro.ctr.$Type PrePro.ctr
+    cp -p Pre--Processing/PrePro.for       .
+   $Comp -w PrePro.for -o PrePro.exe 2> /dev/null
+                        ./PrePro.exe		     
+   rm -f                  PrePro*
+   mv  SISVAT.f           SISVAT.for  
+
+   sed -e "s;        IF (SLsrfl(i,j,2).;c #n2   IF (SLsrfl(i,j,2).;g;" SISVAT.for > toto
+   sed -e "s;            tsrfSL(i,j,2) ;c #n2       tsrfSL(i,j,2) ;g;" toto       > titi
+   sed -e "s;          DO isl=1,nsol+1 ;c #n2     DO isl=1,nsol+1 ;g;" titi       > toto
+   sed -e "s;            TsolTV(i,j,2,i;c #n2       TsolTV(i,j,2,i;g;" toto       > titi
+   sed -e "s;          ENDDO    ! #n2  ;c #n2     ENDDO    ! #n2  ;g;" titi       > toto
+   sed -e "s;            nssSNo(i,j,2  ;c #n2       nssSNo(i,j,2  ;g;" toto       > titi
+   sed -e "s;            issSNo(i,j,2  ;c #n2       issSNo(i,j,2  ;g;" titi       > toto
+   sed -e "s;            nisSNo(i,j,2  ;c #n2       nisSNo(i,j,2  ;g;" toto       > titi
+   sed -e "s;          DO isl=1,nsno   ;c #n2     DO isl=1,nsno   ;g;" titi       > toto
+   sed -e "s;            tisSNo(i,j,2,i;c #n2       tisSNo(i,j,2,i;g;" toto       > titi
+   sed -e "s;            dzsSNo(i,j,2,i;c #n2       dzsSNo(i,j,2,i;g;" titi       > toto
+   sed -e "s;            rosSNo(i,j,2,i;c #n2       rosSNo(i,j,2,i;g;" toto       > titi
+   sed -e "s;            wasSNo(i,j,2,i;c #n2       wasSNo(i,j,2,i;g;" titi       > toto
+   sed -e "s;            g1sSNo(i,j,2,i;c #n2       g1sSNo(i,j,2,i;g;" toto       > titi
+   sed -e "s;            g2sSNo(i,j,2,i;c #n2       g2sSNo(i,j,2,i;g;" titi       > toto
+   sed -e "s;            agsSNo(i,j,2,i;c #n2       agsSNo(i,j,2,i;g;" toto       > titi
+   sed -e "s;            nhsSNo(i,j,2,i;c #n2       nhsSNo(i,j,2,i;g;" titi       > toto
+   sed -e "s;          ENDDO    ! #n2  ;c #n2     ENDDO    ! #n2  ;g;" toto       > titi
+   sed -e "s;        ENDIF      ! #n2  ;c #n2   ENDIF      ! #n2  ;g;" titi       > SISVAT.for
+   
+   echo $PWD
+   cp -p           Sources/*           .
+   cp -p ${MARdir}/forMAR/MARphy.inc   .
+   cp -p ${MARdir}/forMAR/MARgrd.inc   .
+   cp -p ${MARdir}/forMAR/MAR_GE.inc   .
+   cp -p ${MARdir}/forMAR/MAR_RA.inc   .
+   cp -p ${MARdir}/forMAR/MAR_DY.inc   .
+   cp -p ${MARdir}/forMAR/MAR_TE.inc   .
+   cp -p ${MARdir}/forMAR/MAR_TU.inc   .
+   cp -p ${MARdir}/forMAR/MAR_CA.inc   .
+   cp -p ${MARdir}/forMAR/MAR_HY.inc   .
+   cp -p ${MARdir}/forMAR/MAR_SL.inc   .
+   cp -p ${MARdir}/forMAR/MARsSN.inc   .
+   cp -p ${MARdir}/forMAR/MARsIB.inc   .
+   cp -p ${MARdir}/forMAR/MAR_BS.inc   .
+   cp -p ${MARdir}/forMAR/MAR_WK.inc   .
+   cp -p ${MARdir}/forMAR/MAR0SV.inc   .
+   cp -p ${MARdir}/forMAR/MARdSV.inc   .
+   cp -p ${MARdir}/forMAR/MARlSV.inc   .
+   cp -p ${MARdir}/forMAR/MARxSV.inc   .
+   cp -p ${MARdir}/forMAR/MARySV.inc   .
+   cp -p ${MARdir}/forMAR/MAR_TV.inc   .
+   cp -p ${MARdir}/forMAR/MARCTR.inc   .
+   cp -p ${MARdir}/forMAR/MAR_LB.inc   .
+   cp -p ${MARdir}/forMAR/MAR_IB.inc   .
+   cp -p ${MARdir}/forMAR/MAR_IO.inc   .
+   cp -p ${MARdir}/forMAR/MAR_VB.inc   .
+   cp -p ${MARdir}/forMAR/MARSND.inc   .
+   cp -p ${MARdir}/forMAR/MAR_SN.inc   .
+   cp -p          include/NetCDF.inc   .
+   cp -p          include/MARdim.EC    MARdim.inc
+   cp -p          include/MAR_SV.EC    MAR_SV.inc
+   cp -p          include/MAR_SN.EC    MAR_SN.inc    
+  else
+   rm -f                       PrePro*     
+  fi
+  
+##########################################################################################################################
+#
+# Double precision
+# ================
+
+  if [ ${Double} == "y" ] && [ ${Preprocessing} == "y" ] ; then
+   
+   echo " "
+   echo " Double precision switch on"
+   
+   $Comp -w Double.for -o Double.exe 2> /dev/null
+   
+                               echo 'ECsvat.for'     > Double.ctr ; ./Double.exe  
+                               echo 'PHYmar.for'     > Double.ctr ; ./Double.exe    
+                               echo 'PHYrad_top.for' > Double.ctr ; ./Double.exe   
+                               echo 'Debugg_MAR.for' > Double.ctr ; ./Double.exe   
+                               echo 'qsat.for'       > Double.ctr ; ./Double.exe     
+                               echo 'UPDsnow.for'    > Double.ctr ; ./Double.exe
+                               echo 'SISVAT.for'     > Double.ctr ; ./Double.exe    
+                               echo 'Out_nc.for'     > Double.ctr ; ./Double.exe 
+                               echo 'ou2sGE.for'     > Double.ctr ; ./Double.exe 
+			       
+    mv MAR_TV.inc MAR_TV.INC ; echo 'MAR_TV.INC'     > Double.ctr ; ./Double.exe  
+    mv MARgrd.inc MARgrd.INC ; echo 'MARgrd.INC'     > Double.ctr ; ./Double.exe
+    mv MAR_GE.inc MAR_GE.INC ; echo 'MAR_GE.INC'     > Double.ctr ; ./Double.exe
+    mv MAR_RA.inc MAR_RA.INC ; echo 'MAR_RA.INC'     > Double.ctr ; ./Double.exe
+    mv MAR_DY.inc MAR_DY.INC ; echo 'MAR_DY.INC'     > Double.ctr ; ./Double.exe
+    mv MAR_TE.inc MAR_TE.INC ; echo 'MAR_TE.INC'     > Double.ctr ; ./Double.exe
+    mv MAR_TU.inc MAR_TU.INC ; echo 'MAR_TU.INC'     > Double.ctr ; ./Double.exe
+    mv MAR_CA.inc MAR_CA.INC ; echo 'MAR_CA.INC'     > Double.ctr ; ./Double.exe
+    mv MAR_HY.inc MAR_HY.INC ; echo 'MAR_HY.INC'     > Double.ctr ; ./Double.exe
+    mv MAR_SL.inc MAR_SL.INC ; echo 'MAR_SL.INC'     > Double.ctr ; ./Double.exe
+    mv MARsSN.inc MARsSN.INC ; echo 'MARsSN.INC'     > Double.ctr ; ./Double.exe
+    mv MARsIB.inc MARsIB.INC ; echo 'MARsIB.INC'     > Double.ctr ; ./Double.exe
+    mv MAR_BS.inc MAR_BS.INC ; echo 'MAR_BS.INC'     > Double.ctr ; ./Double.exe
+    mv MAR_WK.inc MAR_WK.INC ; echo 'MAR_WK.INC'     > Double.ctr ; ./Double.exe
+    mv MAR0SV.inc MAR0SV.INC ; echo 'MAR0SV.INC'     > Double.ctr ; ./Double.exe
+    mv MARdSV.inc MARdSV.INC ; echo 'MARdSV.INC'     > Double.ctr ; ./Double.exe
+    mv MARlSV.inc MARlSV.INC ; echo 'MARlSV.INC'     > Double.ctr ; ./Double.exe
+    mv MARxSV.inc MARxSV.INC ; echo 'MARxSV.INC'     > Double.ctr ; ./Double.exe
+    mv MARySV.inc MARySV.INC ; echo 'MARySV.INC'     > Double.ctr ; ./Double.exe
+    mv MAR_TV.inc MAR_TV.INC ; echo 'MAR_TV.INC'     > Double.ctr ; ./Double.exe 
+    mv MARCTR.inc MARCTR.INC ; echo 'MARCTR.INC'     > Double.ctr ; ./Double.exe 
+    mv MAR_LB.inc MAR_LB.INC ; echo 'MAR_LB.INC'     > Double.ctr ; ./Double.exe 
+    mv MAR_IB.inc MAR_IB.INC ; echo 'MAR_IB.INC'     > Double.ctr ; ./Double.exe 
+    mv MAR_IO.inc MAR_IO.INC ; echo 'MAR_IO.INC'     > Double.ctr ; ./Double.exe 
+    mv MAR_VB.inc MAR_VB.INC ; echo 'MAR_VB.INC'     > Double.ctr ; ./Double.exe 
+    mv MARSND.inc MARSND.INC ; echo 'MARSND.INC'     > Double.ctr ; ./Double.exe 
+    mv MARphy.inc MARphy.INC ; echo 'MARphy.INC'     > Double.ctr ; ./Double.exe 
+    mv MAR_SN.inc MAR_SN.INC ; echo 'MAR_SN.INC'     > Double.ctr ; ./Double.exe 
+                       rm -f   Double*  *.INC *.for           
+  else 
+   [ -f Double.for ] ; rm -f   Double*
+  fi  
+ fi 
+
+##########################################################################################################################
+#
+# Compilation
+# ===========
+
+   echo " "
+   echo " Compilation ..."
+   echo " "
+      
+  if [ $Comp == "gfortran" ] ; then
+   if [ $Double == "n" ] ; then
+   #cp 
+   $Comp -o ../ECsvat.exe $Option ou2sGE.for ECsvat.for Debugg_MAR.for PHYmar.for PHYrad_top.for Out_nc.for qsat.for UPDsnow.for SISVAT.for  libUN.for -lnetcdf -lnetcdff
+   else
+   $Comp -o ../ECsvat.exe $Option ou2sGE.f   ECsvat.f   Debugg_MAR.f   PHYmar.f   PHYrad_top.f   Out_nc.f   qsat.f   UPDsnow.f   SISVAT.f    libUNd.f  -lnetcdf -lnetcdff
+   fi
+  fi
+
+##########################################################################################################################
+#
+# ETH-camp simulation
+# ===================
+
+  if [ ! -f ../ECsvat.exe ] ; then
+   echo "ERROR: ECsvat.exe not found" ; exit
+  fi
+ 
+  cp -p Post-Processing/ETHplt.x    .. 
+  cp -p Post-Processing/ETHplt.jnl  .. 
+  cp -p Post-Processing/******.JNL  .. 
+#  cp -p            DATA/ObsETH.dat* ..
+  cp -p            DATA/ObsETH2.dat ..
+  cd ..
+  
+  rm  -f SISVAT_00*_00* *~ *.nc OUT *.o ferret.jnl* 2> /dev/null
+
+  echo " "
+  echo " Begin of simulation ..."
+  echo " "
+  rm -f               ECsvat.OUT
+  ./ECsvat.exe     #>  ECsvat.OUT
+
+####
+#
+# Copy output files...
+# ====================
+
+  cp -p ${SimDir}/sondage_ROsn.out ${PostDir}
+  cp -p ${SimDir}/sondage_DZsn.out ${PostDir}
+  

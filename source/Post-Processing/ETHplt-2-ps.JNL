@@ -1,0 +1,182 @@
+\cancel mode verify ! Last modification: 04/11/2002
+ cancel viewport
+ cancel data/all
+ cancel variable/all
+ cancel window/all
+ 
+ set mode metafile
+ set window/new
+ 
+! 1) Simulated year
+! =================
+
+  say 
+  say   " ****************************"
+  
+  IF $1"1|*>0" THEN
+  
+   DEFINE AXIS/T=12-JUN-1990:30-AUG-1990:1/unit=day  taxe
+   say  " * ETH-camp 1990 validation *"
+   let   n = 79  
+  
+  ELSE
+  
+   DEFINE AXIS/T=3-JUN-1991:18-AUG-1991:1 /unit=day  taxe
+   say  " * ETH-camp 1991 validation *"
+   let   n = 77 
+  
+  ENDIF
+  
+  say  " ****************************"
+  
+  DEFINE GRID/T=taxe                                 tgrid
+
+
+! 2) window size
+! ==============
+
+  set window/asp=0.8/size=0.6
+
+! 3) Input
+! ========
+
+  FILE/VAR="alb_obs,alb_sim,mas_obs,mas_sim,sno_obs,sno_sim,ice,slush,dens,tel"/GRID=tgrid  Output__ETH.ferret
+  SET VAR/UNITS="%"     /TITLE="Simulated" alb_sim  ! Albedo
+  SET VAR/UNITS="%"     /TITLE="Observed"  alb_obs  ! Albedo
+  SET VAR/UNITS="cmWE"  /TITLE="Simulated" mas_sim  ! Mass Balance
+  SET VAR/UNITS="cmWE"  /TITLE="Observed"  mas_obs  ! Mass Balance
+  SET VAR/UNITS="cm"    /TITLE="Simulated" sno_sim  ! Height snow
+  SET VAR/UNITS="cm"    /TITLE="Observed"  sno_obs  ! Height snow
+  SET VAR/UNITS="kg/m³" /TITLE="Average"   dens     ! Density 
+  SET VAR/UNITS="%"     /TITLE="Average"   tel      ! Water content
+  save/file=Output__ETH.ferret.nc alb_obs,alb_sim,mas_obs,mas_sim,sno_obs,sno_sim,ice,slush,dens,tel
+
+! 4) Output
+! =========
+
+! 4.1 Albedo Plot
+! ---------------
+
+  SET VIEW UPPER
+  go margins 0.8 0.8 1 1
+  
+  PLOT/set_up/color=4/dash=(0.05,0.05,0.05,0.05) alb_obs 
+  PPL LABSET,0.15,0.15,0.15,0.15  
+  PPL Ylab @TR@P1Albedo (@AC%) 
+  PPL XLAB @TRTime (day)
+  go unlabel 1
+  go unlabel 2
+  go unlabel 3
+  go unlabel 5
+  IF $1"1|*>0" THEN
+   ppl title @TRETH-camp 1990 (@P4obs@P1, @P2sim@P1)
+  ELSE
+   ppl title @TRETH-camp 1991 (@P4obs@P1, @P2sim@P1)  
+  ENDIF
+  ppl plot
+  plot/set_up/over/nolabel/color=2 alb_sim
+  ppl plot/overlay
+   
+! 4.2 Mass balance
+! ----------------
+
+ !SET WINDOW/NEW
+  SET VIEW LR
+  go margins 0.2 1.0 0.7 1.1
+  
+  IF $1"1|*>0" THEN
+   PLOT/set_up/color=4/nolabel/dash=(0.05,0.05,0.05,0.05) mas_obs 
+  ELSE
+   PLOT/set_up/color=4/nolabel/dash=(0.05,0.05,0.05,0.05)/Vlimit=20:80:10 mas_obs   
+  ENDIF
+  PPL LABSET,0.15,0.15,0.15,0.15  
+  PPL Ylab @TR@P1Mass Balance (@ACcmWE) 
+  PPL XLAB @TRTime (day)
+  ppl plot
+  plot/set_up/over/nolabel/color=2 mas_sim
+  ppl plot/overlay
+
+
+! 4.3 Snow height
+! ----------------
+ 
+  SET VIEW LL
+  go margins 0.2 1.0 1.1 0.7
+
+  PLOT/set_up/color=4/nolabel/dash=(0.05,0.05,0.05,0.05) sno_obs 
+  PPL LABSET,0.15,0.15,0.15,0.15  
+  PPL Ylab @TR@P1Snow Height (@ACcmWE) 
+  PPL XLAB @TRTime (day)
+  ppl plot
+  plot/set_up/over/nolabel/color=2 sno_sim
+  ppl plot/overlay
+    
+! 5) Statistics 
+! =============
+ 
+  let ave_albs    = alb_sim[t=@ave]
+  let ave_albo    = alb_obs[t=@ave]
+  let bias1       = ave_albs-ave_albo
+  let diff_albs   = (alb_sim - ave_albs)*(alb_sim - ave_albs)
+  let diff_albo   = (alb_obs - ave_albo)*(alb_obs - ave_albo)
+  let diff_tot1   = (alb_sim - ave_albs)*(alb_obs - ave_albo) 
+  let sig_albs    = exp(1/2*ln(1/(n)*diff_albs[t=@sum])) 
+  let sig_albo    = exp(1/2*ln(1/(n)*diff_albo[t=@sum]))
+  let coef1       = 1/(n)*diff_tot1[t=@sum]/(sig_albs*sig_albo)
+  let diff1       = (alb_sim-alb_obs)*(alb_sim-alb_obs)
+  let RMSE1       = exp(1/2*ln(1/n*diff1[t=@sum]))   
+
+  let ave_mass    = mas_sim[t=@ave]
+  let ave_maso    = mas_obs[t=@ave]
+  let bias2       = ave_mass-ave_maso
+  let diff_mass   = (mas_sim - ave_mass)*(mas_sim - ave_mass)
+  let diff_maso   = (mas_obs - ave_maso)*(mas_obs - ave_maso)
+  let diff_tot2   = (mas_sim - ave_mass)*(mas_obs - ave_maso) 
+  let sig_mass    = exp(1/2*ln(1/(n)*diff_mass[t=@sum])) 
+  let sig_maso    = exp(1/2*ln(1/(n)*diff_maso[t=@sum]))
+  let coef2       = 1/(n)*diff_tot2[t=@sum]/(sig_mass*sig_maso)
+  let diff2       = (mas_sim-mas_obs)*(mas_sim-mas_obs)
+  let RMSE2       = exp(1/2*ln(1/n*diff2[t=@sum]))   
+
+  let ave_snos    = sno_sim[t=@ave]
+  let ave_snoo    = sno_obs[t=@ave]
+  let bias3       = ave_snos-ave_snoo
+  let diff_snos   = (sno_sim - ave_snos)*(sno_sim - ave_snos)
+  let diff_snoo   = (sno_obs - ave_snoo)*(sno_obs - ave_snoo)
+  let diff_tot3   = (sno_sim - ave_snos)*(sno_obs - ave_snoo) 
+  let sig_snos    = exp(1/2*ln(1/(n)*diff_snos[t=@sum])) 
+  let sig_snoo    = exp(1/2*ln(1/(n)*diff_snoo[t=@sum]))
+  let coef3       = 1/(n)*diff_tot3[t=@sum]/(sig_snos*sig_snoo)
+  let diff3       = (sno_sim-sno_obs)*(sno_sim-sno_obs)
+  let RMSE3       = exp(1/2*ln(1/n*diff3[t=@sum]))   
+
+  let name = {'Albedo      ','Snow Height ','Mass Balance'}
+  
+  PPL clsplt
+
+  IF $1"1|*>0" THEN  
+   sp rm -f               ETH_1990.stat ETH_1990.ps
+   sp Fprint -p portrait -l cps -o      ETH_1990.ps metafile.plt
+   list/quiet/nohead/file=ETH_1990.stat/clobber        name[i=1],  ave_albs, ave_albo, bias1, sig_albs, sig_albo, coef1, RMSE1
+   list/quiet/nohead/file=ETH_1990.stat/clobber/append name[i=2],  ave_mass, ave_maso, bias2, sig_mass, sig_maso, coef2, RMSE2
+   list/quiet/nohead/file=ETH_1990.stat/clobber/append name[i=3],  ave_snos, ave_snoo, bias3, sig_snos, sig_snoo, coef3, RMSE3 
+  ELSE
+   sp rm -f               ETH_1991.stat ETH_1991.ps
+   sp Fprint -p portrait -l cps -o      ETH_1991.ps metafile.plt
+   list/quiet/nohead/file=ETH_1991.stat/clobber        name[i=1],  ave_albs, ave_albo, bias1, sig_albs, sig_albo, coef1, RMSE1
+   list/quiet/nohead/file=ETH_1991.stat/clobber/append name[i=2],  ave_mass, ave_maso, bias2, sig_mass, sig_maso, coef2, RMSE2
+   list/quiet/nohead/file=ETH_1991.stat/clobber/append name[i=3],  ave_snos, ave_snoo, bias3, sig_snos, sig_snoo, coef3, RMSE3     
+  ENDIF
+  
+  sp rm -f metafile*
+  
+  say
+  say   "          Variable Name    avMAR   avOBS  bias    siMAR   siETH  coef    RMSE" 
+  say   "          -------------    -----   -----  ----    -----   -----  ----    ----" 
+  
+  list/quiet/nohead name[i=1],  ave_albs, ave_albo, bias1, sig_albs, sig_albo, coef1, RMSE1
+  list/quiet/nohead name[i=2],  ave_mass, ave_maso, bias2, sig_mass, sig_maso, coef2, RMSE2
+  list/quiet/nohead name[i=3],  ave_snos, ave_snoo, bias3, sig_snos, sig_snoo, coef3, RMSE3 
+  
+  set mode/last verify
+  

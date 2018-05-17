@@ -1,0 +1,18 @@
+SISVAT.for
+#HY       Hydrological    Cycle
+#SN       Snow            Model
+#II       Snow            Model                    Search new Ice/Snow Interface
+#CZ       Zenith  Angle   Correction
+#GL       Greenland Ice   Roughness    Length      Parameterization
+#NC       OUTPUT: netcdf: Stand Alone  Model
+#WV       OUTPUT: ASCII:  Variables    Diagnostic
+#ES       OUTPUT: ASCII:  Energy       Budget
+#MS       OUTPUT: ASCII:  Snow         Budget
+#MW       OUTPUT: ASCII:  Water        Budget
+#as       OUTPUT: ASCII:  Layers       Agregation (Details in _zSn)
+#aw       OUTPUT: ASCII:  Albedo                  (Details in SnOptP)
+#em       OUTPUT: ASCII:  Energy/Water Budget     (Details in _qSn)
+#su       OUTPUT: ASCII:  Slush        Diagnostic (Details in _qSn)
+#mw       OUTPUT: ASCII:  Water        Budget     (Details in _qSo)
+#VP       OUTPUT: ASCII:  Snow         Properties (Details in _zSn, _GSn)
+#EQ       OUTPUT: ASCII:  Snow Amount [mmWE]

@@ -1,0 +1,6 @@
+SISVAT.for
+#HY       Hydrological    Cycle
+#SN       Snow            Model
+#CZ       Zenith  Angle   Correction
+#GL       Greenland Ice   Roughness    Length      Parameterization
+#NC       OUTPUT: netcdf: Stand Alone  Model

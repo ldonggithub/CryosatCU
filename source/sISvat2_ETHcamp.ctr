@@ -1,0 +1,51 @@
+********************************************************************************
+******************** CONTROL FILE FOR OFFLINE MAR SIMULATION *******************
+********************************************************************************
+
+Station-Specific Parameters:
+===========================
+
+START DATE (YYYY,MM,DD,HH)                   
+1990,06,12,00           
+END DATE (YYYY,MM,DD,HH)
+1990,08,30,00
+LATITUDE (dd)
+69.6123
+LONGITUDE (dd)
+-49.1497
+SURFACE HEIGHT (m)
+1155.
+SURFACE SLOPE
+0.02
+
+Snow Profile Parameters:
+========================
+Total Layers
+35
+Initial Ice Layers
+15
+Initial Snow Layers
+20
+Initial Ice Thickness (m)
+20.0
+Initial Snow Thickness (m)
+1.138
+Minimum Layer Thickness (m)
+0.03
+
+Input File Parameters:
+======================
+Number of Input Layers
+15
+Input File Snow Layers
+7
+
+Time intervals:
+===============
+
+dt physics (s)
+360.
+Output Interval (min)
+30.
+
+

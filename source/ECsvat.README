@@ -1,0 +1,55 @@
+Soil Ice Snow Vegetation Atmosphere Transfer (SISVAT):
+Validation on ETH-Camp   Observations
+Seasons  1990 (a mild season, for testing the snow/ice  model, to be done after testing 1991)
+         1991 (a cold season, for testing the snow model only, to be done first)
+---------------------------------------------------------------------------------------------
+
+gallee [~]> mv                     SISVAT.ETH-Camp-GL SISVAT.ETH-Camp-GL.BAK+n
+gallee [~]> cd $MARONH/STAND-ALONE/SISVAT.ETH-Camp-GL
+gallee [SISVAT.ETH-Camp-GL]> lm
+total 48
+20 -rwxr-x--- 1 gallee 760 18178 2009-04-06 14:30 ECsvat.sh*
+ 4 drwxr-xr-x 2 gallee 760  4096 2009-04-06 14:20 Post-Processing/
+ 4 drwxr-xr-x 2 gallee 760  4096 2006-03-16 10:00 Sources/
+ 4 drwxr-xr-x 2 gallee 760  4096 2006-02-17 17:00 Pre--Processing/
+ 4 -rw-r----- 1 gallee 760   121 2006-02-17 16:30 ECsvat.README
+ 4 drwxr-xr-x 2 gallee 760  4096 2006-02-16 17:40 include/
+ 4 drwxr-xr-x 2 gallee 760  4096 2006-02-15 14:45 CTRL/
+ 4 drwxr-xr-x 2 gallee 760  4096 2006-02-15 14:45 DATA/
+
+gallee [SISVAT.ETH-Camp-GL]> ./ECsvat.sh
+
+ ******************************************
+ *   Preparation of ETH-Camp Simulation   *
+ ******************************************
+
+
+You are working on lgge-pc208.lgge.obs.ujf-grenoble.fr
+
+ Do you want to extract    SISVAT  from MAR___.for    (y,n)?
+ (BE CAUTIOUS: the answer 'y' erases current modifications): y
+ Specify SOURCE directory: MARONH.d for MAR           users
+                           SISVAT.d for other         users: MARONH.d
+ Preprocess options : ( nCZ , _CZ , _CZ_wri , _CZ_wriFULL ): _CZ
+ Specify the year           (only 1990 OR 1991 are allowed): 1990
+ --------------------------------------------------------------------
+ Compilator         : ifort
+ Option for ifort     : -w -vec_report0 -O2 -fp-model precise
+
+ Run directory      : /pc208/home/gallee/SISVAT.ETH-Camp-GL
+ MAR directory      : /pc208/home/gallee/MARONH.d
+
+ New MAR            : y
+ Preprocessing      : y
+ Type of simulation : _CZ
+ Double precision   : y
+ Simulated year     : 1990
+ --------------------------------------------------------------------
+
+ Do you agree with this configuration?      (y/n): y
+ ...
+
+ gallee [~]> cd ~/SISVAT.ETH-Camp-GL
+ gallee [SISVAT.ETH-Camp-GL]> ./ETHplt.x 1 (for 1991)
+ ...
+ gallee [SISVAT.ETH-Camp-GL]> ./ETHplt.x   (for 1990)

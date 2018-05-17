@@ -1,0 +1,14 @@
+ ! NOAA/PMEL TMAP
+ ! FERRET v5.70  
+ ! Linux(g77) 2.4.20 - 06/28/04
+ ! 17-Feb-06 16:40     
+
+use SISVAT.ETH-Camp-GL.570.58v.0013.nRN.nc
+show data
+plot/color=3/vlimits=40:90      ALB_OBS
+plot/color=2/over               ALB_SIM
+use SISVAT.ETH-Camp-GL.580.58v.0013.nRN.nc
+plot/color=1/over               ALB_SIM
+use SISVAT.ETH-Camp-GL.590.58v.0013.nRN.nc
+plot/color=4/over               ALB_SIM
+exit

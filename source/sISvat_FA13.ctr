@@ -1,0 +1,65 @@
+********************************************************************************
+******************** CONTROL FILE FOR OFFLINE MAR SIMULATION *******************
+********************************************************************************
+MARsimulation: /home/pmalexan/MAR/out/GRc/c03//2003/ONE.c03.2003.01.01-31.nc
+S14: FA13-Koenig
+
+Station-Specific Parameters:
+============================
+START DATE (YYYY,MM,DD,HH)
+2003,01,01,00
+END DATE (YYYY,MM,DD,HH)
+2013,12,01,00
+LATITUDE (dd)
+66.226295
+LONGITUDE (dd)
+-38.886097
+SURFACE HEIGHT (m)
+1363.948242
+SURFACE SLOPE
+0.016356
+
+Snow Profile Parameters:
+========================
+Total Layers
+30
+Initial Ice Layers
+0
+Initial Snow Layers
+30
+Initial Ice Thickness (m)
+0.0
+Initial Snow Thickness (m)
+14.999998
+Minimum Layer Thickness (m)
+0.03
+
+Other Parameters:
+=================
+Initial Snow Age
+60.0
+Top Initial Snow Age
+2.0
+Initial Monin-Obukhov Length
+0.45238962214955963
+Initial Friction Velocity
+0.043930698
+Exact Profile
+.True.
+
+Input File Parameters:
+======================
+Number of Input Layers
+30
+Input File Snow Layers
+30
+
+Time intervals:
+===============
+dt physics (s)
+360.0
+Output Interval (min)
+30.0
+Forcing Interval (min)
+30.0
+

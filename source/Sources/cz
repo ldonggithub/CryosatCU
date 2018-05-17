@@ -1,0 +1,19 @@
+c Estimate albedos for direct radiation at given zenith angle.
+c Here the parameters in the D-M equations have been
+c refit to the data of Marshall and Warren, Figs 2b and 2d.
+c It appears that in the D-M parameterization albvis0 and alnir0
+c were incorrectly assumed to be for vertical incidence instead of
+c for diffuse radiaton (where cosz = 1/dsqrt(3)).  The fit is still
+c not great, and this needs to be redone using the original W-W algorithm
+        gmt=float(ihour+itimezone)+float(imin)/60d0
+        call zen(jday,gmt,dlatt,dlongt,cosz,sind,cosd,xm,ido,hr)
+cNov27,1996        dum=1d0/dsqrt(3d0)
+        dum=0.57735026918963
+c D-M      albvis1=albvis0 + sqrtr*1.375d0*(1d0-cosz)
+c Next added on  April 7, 1997 for case of sun below horizon
+        tcosz=dmax1(cosz,0d0)
+        albvis1=albvis0 + sqrtr*1.575d0*(dum-tcosz)
+c D-M   albnir1=albnir0 + (2d0*sqrtr+0.1d0)*(1d0 - cosz)
+        albnir1=albnir0 + (2.4d0*sqrtr+0.12d0)*(dum - tcosz)
+
+

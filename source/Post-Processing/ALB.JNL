@@ -1,0 +1,8 @@
+   use ETH_58_32.nc
+   plot/vlimits=40:100 ALB_SIM
+   plot/over/color=15  ALB_OBS
+   use ETH_55_35.nc
+   plot/over/color=2   ALB_SIM
+   use ETH_60_30.nc
+   plot/over/color=4   ALB_SIM
+   exit

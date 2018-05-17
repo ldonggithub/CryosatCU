@@ -1,0 +1,65 @@
+********************************************************************************
+******************** CONTROL FILE FOR OFFLINE MAR SIMULATION *******************
+********************************************************************************
+MARsimulation: .//2003/ONE.c03.2003.01.01-31.nc
+S28: Jar1
+
+Station-Specific Parameters:
+============================
+START DATE (YYYY,MM,DD,HH)
+2003,01,01,00
+END DATE (YYYY,MM,DD,HH)
+2004,01,01,00
+LATITUDE (dd)
+69.556816
+LONGITUDE (dd)
+-49.692608
+SURFACE HEIGHT (m)
+932.015320
+SURFACE SLOPE
+0.018959
+
+Snow Profile Parameters:
+========================
+Total Layers
+30
+Initial Ice Layers
+8
+Initial Snow Layers
+22
+Initial Ice Thickness (m)
+14.475
+Initial Snow Thickness (m)
+0.52499998
+Minimum Layer Thickness (m)
+0.03
+
+Other Parameters:
+=================
+Initial Snow Age
+60.0
+Top Initial Snow Age
+2.0
+Initial Monin-Obukhov Length
+1.1983483935231933
+Initial Friction Velocity
+0.088313155
+Exact Profile
+.True.
+
+Input File Parameters:
+======================
+Number of Input Layers
+30
+Input File Snow Layers
+22
+
+Time intervals:
+===============
+dt physics (s)
+360.0
+Output Interval (min)
+30.0
+Forcing Interval (min)
+30.0
+
