@@ -1,0 +1,69 @@
+#---*--------*--------*--------*--------*--------*-----------*---------------------------MAR(NetCDF/IDL)-+
+#    Variable ---------Dimensions---------------- Unites      Nom complet (description)
+#---*--------1--------2--------3--------4--------*-----------*-------------------------------------------+
+    year     -        -        -        time     YYYY        Date, as year
+    date     -        -        -        time     MMDDHH      Date, as month(MM), day(DD), hour(HH)
+    lon      x        y        -        -        degrees     Longitude
+    lat      x        y        -        -        degrees     Latitude
+    sh       x        y        -        -        m           Surface Height 
+    isol     x        y        -        -        -           Surface Type                         
+    coszen   x        y        -        time     -           Cosine Solar Zenithal Distance
+    albedo   x        y        -        time     -           Surface Albedo
+    net_SW   x        y        -        time     W/m2        Net Solar Radiation
+    net_LW   x        y        -        time     W/m2        Net LongW Radiation
+    ppSnow   x        y        -        time     mmWE        Snow Precipitation (since last output)
+    tpSnow   x        y        -        time     mmWE        Snow Precipitation (time integral)
+    ppRain   x        y        -        time     mm          Rain Precipitation
+    G1___1   x        y        -        time     -           Snow Dendricity/Sphericity (Mosaic 1)
+    G2___1   x        y        -        time     -/0.1mm     Snow Sphericity/Size (Mosaic 1)
+    H_Snow   x        y        -        time     m           Snow Height 
+    HS_Obs   x        y        -        time     m           Snow Height (Observed)
+    H_Sno1   x        y        -        time     m           Snow Height (Mosaic 1)
+    HeSno1   x        y        -        time     mWE         Snow Height (Mosaic 1)
+    ustar1   x        y        -        time     m/s         Friction Velocity Effective (Mosaic 1)
+    ustth1   x        y        -        time     m/s         Friction Velocity Threshold (Mosaic 1)
+    BlowS1   x        y        -        time     mmWE        Blown Snow (Mosaic 1)
+    G1___2   x        y        -        time     -           Snow Dendricity/Sphericity (Mosaic 2)
+    G2___2   x        y        -        time     -/0.1mm     Snow Sphericity/Size (Mosaic 2)
+    H_SnoI   x        y        -        time     m           SIce Thickn.(Mosaic 2)
+    H_Sno2   x        y        -        time     m           Snow Height (Mosaic 2)
+    HeSno2   x        y        -        time     mWE         Snow Height (Mosaic 2)
+    SeaIce   x        y        -        time     %           Sea-Ice Fraction           
+    ustar2   x        y        -        time     m/s         Friction Velocity Effective (Mosaic 2)
+    ustth2   x        y        -        time     m/s         Friction Velocity Threshold (Mosaic 2)
+    BlowS2   x        y        -        time     mmWE        Blown Snow (Mosaic 2)
+    TsolAV   x        y        level    time     K           Soil Temperature           
+    TgrdAV   x        y        -        time     dgC         Soil Surface Temperature           
+    Tveg_1   x        y        -        time     dgC         Vegetation Temperature (Mosaic 1)
+    Tveg_2   x        y        -        time     dgC         Vegetation Temperature (Mosaic 2)
+    Tsol_1   x        y        -        time     dgC         Soil Surface Temperature (Mosaic 1)
+    Tsol_2   x        y        -        time     dgC         Soil Surface Temperature (Mosaic 2)
+    TS_Obs   x        y        -        time     dgC         Soil Surface Temperature (Observed)
+    HsolAV   x        y        level    time     m3/m3       Soil Humidity              
+    HgrdAV   x        y        -        time     m           Soil Surface Water Potential       
+    Solar1   x        y        -        time     W/m2        Absorbed Solar Radiation (Mosaic 1)
+    IR___1   x        y        -        time     W/m2        Absorbed Infra Radiation (Mosaic 1)
+    HS___1   x        y        -        time     W/m2        Absorbed Sensible Heat (Mosaic 1)
+    HL___1   x        y        -        time     W/m2        Absorbed Latent Heat (Mosaic 1)
+    Es___1   x        y        -        time     W/m2        Evaporation (Mosaic 1)
+    Ev___1   x        y        -        time     W/m2        Tranpiration (Mosaic 1)
+    eta__1   x        y        -        time     W/m2        Soil Humidity (Mosaic 1)
+    VegSN1   x        y        -        time     mmWE        Snow on Vegetation (Mosaic 1)
+    Solar2   x        y        -        time     W/m2        Absorbed Solar Radiation (Mosaic 2)
+    IR___2   x        y        -        time     W/m2        Absorbed Infra Radiation (Mosaic 2)
+    HS___2   x        y        -        time     W/m2        Absorbed Sensible Heat (Mosaic 2)
+    HL___2   x        y        -        time     W/m2        Absorbed Latent Heat (Mosaic 2)
+    Es___2   x        y        -        time     W/m2        Evaporation (Mosaic 2)
+    Ev___2   x        y        -        time     W/m2        Tranpiration (Mosaic 2)
+    eta__2   x        y        -        time     W/m2        Soil Humidity (Mosaic 2)
+    VegSN2   x        y        -        time     mmWE        Snow on Vegetation (Mosaic 2)
+# 
+#Remarks:                    
+#--------
+#
+# -1- Put characters (#) into the first 4 rows if you don't want the variable in the output
+# 
+# -2- Defined dimensions are: x and y, 
+#                             level    = main sigma levels k
+#                             level2   =      sigma levels k+1/2
+#                             sector   = subgrid surface types                        
